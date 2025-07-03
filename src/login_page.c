@@ -2,7 +2,8 @@
 #include "utils.h"
 #include "menu.h"
 
-User *user=NULL; // Global user pointer
+User *user = NULL; // Global user pointer
+
 char login(void)
 {
 	char op;
@@ -14,17 +15,19 @@ char login(void)
 		switch (tolower(op))
 		{
 		case 'l':
-			char users = login_page(user);
-			if (users == 'A')
+		{
+			char role = login_page(user);
+			if (role == 'A')
 			{
-				return 'A'; // Admin
+				return 'A';
 			}
-			else if (users == 'C')
+			else if (role == 'C')
 			{
-				return 'C'; // Customer
+				return 'C';
 			}
 			flag = 0;
 			break;
+		}
 		case 'r':
 			register_page(&user);
 			break;
@@ -44,12 +47,13 @@ char login(void)
 			getchar();
 		}
 	} while (flag);
-	return 0; 
+	return 0;
 }
 
 char login_page(User *user)
 {
-	char username[50], password[50], flag = 1;
+	char username[50], password[50];
+	int flag = 1;
 	do
 	{
 		system("clear");
@@ -62,20 +66,24 @@ char login_page(User *user)
 		if (role == 0)
 		{
 			printf("\n\t\t\tInvalid username or password. Please try again.\n");
-			usleep(1000000); // Sleep for 1 second
+			usleep(1000000);
 			continue;
-		}else {
+		}
+		else
+		{
 			printf("\n\t\t\tLogin successful! Welcome, %s.\n", username);
 			usleep(1000000);
-			flag = 0;
 			return role;
 		}
 	} while (flag);
+	return 0; // Return 0 if login fails
 }
 
 void register_page(User **user)
 {
-	char username[50], password[50], confirm_password[50], flag = 1, role;
+	char username[50], password[50], confirm_password[50];
+	char role;
+	int flag = 1;
 	do
 	{
 		system("clear");
@@ -97,6 +105,7 @@ void register_page(User **user)
 		flag = 0;
 	} while (flag);
 	add_user(user, username, password, role);
+	save_users(*user); // Pass the dereferenced user pointer
 	printf("\n\t\t\tRegistration successful for user: %s\n", username);
 }
 
@@ -110,7 +119,7 @@ void add_user(User **user, char *username, char *password, char role)
 	}
 	strcpy(new_user->username, username);
 	strcpy(new_user->password, password);
-	
+
 	if (tolower(role) == 'a')
 	{
 		new_user->role = ADMIN;
@@ -131,14 +140,69 @@ void add_user(User **user, char *username, char *password, char role)
 
 char check_user(User *user, char *username, char *password)
 {
-	User *current = user;
+	FILE *user_file = fopen("user_credential.xls", "r");
+	if (user_file == NULL)
+	{
+		printf("Error opening user credential file for reading.\n");
+		return 0; // Indicate failure
+	}
+
+	char line[256];
+	while (fgets(line, sizeof(line), user_file))
+	{
+		char *file_username = strtok(line, "\t");
+		if (!file_username)
+			continue;
+		char *file_password = strtok(NULL, "\t");
+		if (!file_password)
+			continue;
+		char *user_role = strtok(NULL, "\t");
+		if (!user_role)
+			continue;
+
+		user_role[strcspn(user_role, "\n")] = 0;
+
+		if (strcmp(file_username, username) == 0 && strcmp(file_password, password) == 0)
+		{
+			return (strcmp(user_role, "ADMIN") == 0) ? 'A' : 'C';
+		}
+	}
+	fclose(user_file);
+	return 0;
+}
+
+void save_users(User *users)
+{
+	if (users == NULL)
+	{
+		printf("No Users To save\n");
+		return;
+	}
+
+	FILE *user_file = fopen("user_credential.xls", "w"); // Corrected to "w"
+	if (user_file == NULL)
+	{
+		printf("Error opening file for writing\n");
+		return;
+	}
+	fprintf(user_file, "User  name\tpassword\tUser  Role\n");
+
+	User *current = users;
+	char role[15];
 	while (current != NULL)
 	{
-		if (strcmp(current->username, username) == 0 && strcmp(current->password, password) == 0)
+		if (current->role == 0)
 		{
-			return (current->role == ADMIN) ? 'A' : 'C';
+			strcpy(role, "ADMIN");
 		}
+		else if (current->role == 0)
+		{
+			strcpy(role, "CUSTOMER");
+		}
+
+		fprintf(user_file, "%s\t%s\t%s\n", current->username, current->password, role);
 		current = current->next;
 	}
-	return 0;
+	fclose(user_file);
+	printf("User  details saved to user_credential.xls successfully.\n");
 }

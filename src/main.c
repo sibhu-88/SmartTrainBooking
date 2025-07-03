@@ -2,7 +2,7 @@
 #include "utils.h"
 // #include"menu.h"
 
-Train *trains=NULL;
+Train *trains = NULL;
 
 int main()
 {
@@ -27,20 +27,25 @@ int main()
 				usleep(500000);
 				add_train(&trains);
 				break;
-			case 'd':
-				printf("\n\t\t\tDeleting Train...\n");
-				usleep(500000);
-				// delete_train();
-				break;
-			case 'u':
-				printf("\n\t\t\tUpdating Train...\n");
-				usleep(500000);
-				// update_train();
-				break;
 			case 'v':
 				printf("\n\t\t\tViewing Trains...\n");
 				usleep(500000);
 				view_trains(trains);
+				break;
+			case 'd':
+				printf("\n\t\t\tDeleting Train...\n");
+				usleep(500000);
+				delete_train(&trains);
+				break;
+			case 'u':
+				printf("\n\t\t\tUpdating Train...\n");
+				usleep(500000);
+				update_train(&trains);
+				break;
+			case 's':
+				printf("\n\t\t\tSaving Train...\n");
+				usleep(500000);
+				save_trains(trains);
 				break;
 			case 'e':
 				printf("\n\t\t\tExiting the system...\n");

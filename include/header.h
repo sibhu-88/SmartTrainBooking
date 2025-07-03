@@ -5,56 +5,61 @@
 #include <time.h>
 #include <ctype.h>
 
-typedef enum {
+typedef enum
+{
     ADMIN,
     CUSTOMER
 } UserRole;
 
-typedef struct {
+typedef struct
+{
     char username[20];
     char password[20];
     UserRole role;
-    struct User* next;  
+    struct User *next;
 } User;
 
-typedef enum {
+typedef enum
+{
     MALE = 'M',
     FEMALE = 'F',
     OTHER = 'O'
 } Gender;
 
-typedef struct {
+typedef struct
+{
     char first_name[25];
     char last_name[25];
     int age;
     Gender gender;
 } Passenger;
 
-typedef struct {
+typedef struct
+{
     int number;
     char name[50];
     char source[50];
     char destination[50];
     int total_seats;
     int available_seats;
-    struct Train* next;
+    struct Train *next;
 } Train;
 
-typedef struct {
+typedef struct
+{
     unsigned long pnr;
     char seat_number[10];
     Passenger passenger;
     Train train;
-    char date[11];  // DD-MM-YYYY format
-    struct Ticket* next;
+    char date[11]; // DD-MM-YYYY format
+    struct Ticket *next;
 } Ticket;
 
-typedef struct {
+typedef struct
+{
     User users[100];
     int count;
-    Ticket* bookings;
+    Ticket *bookings;
     Train trains[5];
     int train_count;
 } BookingSystem;
-
-

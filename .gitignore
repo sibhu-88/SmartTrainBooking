@@ -9,6 +9,7 @@
 
 # Dependency files
 build/*
+*.xls
 
 # Linker output
 *.ilk

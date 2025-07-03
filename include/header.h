@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <time.h>
 #include <ctype.h>
 
@@ -13,6 +14,7 @@ typedef struct {
     char username[20];
     char password[20];
     UserRole role;
+    struct User* next;  
 } User;
 
 typedef enum {
@@ -35,6 +37,7 @@ typedef struct {
     char destination[50];
     int total_seats;
     int available_seats;
+    struct Train* next;
 } Train;
 
 typedef struct {

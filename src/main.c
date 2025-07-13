@@ -11,7 +11,8 @@ int main()
 	char user = login();
 	printf("\n\t\t\tYou are logged in as: %c\n", user);
 	usleep(500000);
-	if (user == 'A')
+	read_trains(&trains);
+	if (tolower(user) == 'a')
 	{
 		printf("\n\t\t\tWelcome to the Admin Page.\n");
 		usleep(500000);
@@ -58,7 +59,7 @@ int main()
 		} while (1);
 		usleep(1000000);
 	}
-	else if (user == 'C')
+	else if (tolower(user) == 'c')
 	{
 		printf("\n\t\t\tYou are logged in as a customer.\n");
 		do
@@ -71,12 +72,12 @@ int main()
 			case 'b':
 				printf("\n\t\t\tBooking Ticket...\n");
 				usleep(500000);
-				// book_ticket();
+				book_ticket();
 				break;
 			case 't':
 				printf("\n\t\t\tTrain Details...\n");
 				usleep(500000);
-				// train_details();
+				view_trains(trains);
 				break;
 			case 'c':
 				printf("\n\t\t\tCancel Ticket...\n");

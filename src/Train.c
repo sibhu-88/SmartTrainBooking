@@ -153,6 +153,9 @@ void view_trains(Train *trains)
     if (trains == NULL)
     {
         printf("No trains available.\n");
+        printf("Press any key to continue...\n");
+        getchar();
+        getchar();
         return;
     }
 
@@ -203,4 +206,46 @@ void save_trains(Train *trains)
     }
     fclose(train_file);
     printf("Train details saved to train_details.xls successfully.\n");
+}
+
+void read_trains(Train **trains)
+{
+    FILE *train_file = fopen("train_details.xls", "r");
+    if (train_file == NULL)
+    {
+        printf("Error opening train details file for reading.\n");
+        return;
+    }
+
+    char line[256];
+    fgets(line, sizeof(line), train_file); // Skip header line
+    while (fgets(line, sizeof(line), train_file))
+    {
+        Train *new_train = (Train *)malloc(sizeof(Train));
+        if (new_train == NULL)
+        {
+            printf("Memory allocation failed!\n");
+            fclose(train_file);
+            return;
+        }
+        sscanf(line, "%d\t%[^\t]\t%[^\t]\t%[^\t]\t%d\t%d",
+               &new_train->number, new_train->name, new_train->source,
+               new_train->destination, &new_train->total_seats, &new_train->available_seats);
+        new_train->next = NULL;
+
+        if (*trains == NULL)
+        {
+            *trains = new_train;
+        }
+        else
+        {
+            Train *current = *trains;
+            while (current->next != NULL)
+            {
+                current = current->next;
+            }
+            current->next = new_train;
+        }
+    }
+    fclose(train_file);
 }

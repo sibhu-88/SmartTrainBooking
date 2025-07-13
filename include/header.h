@@ -32,6 +32,7 @@ typedef struct
     char last_name[25];
     int age;
     Gender gender;
+    int seat_number;
 } Passenger;
 
 typedef struct
@@ -39,19 +40,29 @@ typedef struct
     int number;
     char name[50];
     char source[50];
+    char *stoping[5];
     char destination[50];
     int total_seats;
     int available_seats;
     struct Train *next;
 } Train;
 
+typedef enum
+{
+    confirmed = 'C',
+    cancelled = 'X',
+    waiting = 'W',
+} status;
+
 typedef struct
 {
     unsigned long pnr;
-    char seat_number[10];
-    Passenger passenger;
+    int passenger_count;
+    int waiting_count;
+    Passenger *passenger;
     Train train;
     char date[11]; // DD-MM-YYYY format
+    status status;
     struct Ticket *next;
 } Ticket;
 

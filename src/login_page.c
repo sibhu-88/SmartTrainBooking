@@ -8,6 +8,7 @@ char login(void)
 {
 	char op;
 	int flag = 1;
+	read_user(&user);
 	do
 	{
 		login_menu();
@@ -140,6 +141,71 @@ void add_user(User **user, char *username, char *password, char role)
 
 char check_user(User *user, char *username, char *password)
 {
+	if (user == NULL)
+	{
+		printf("No users registered.\n");
+		return 0; // Indicate failure
+	}
+	while (user != NULL)
+	{
+		if (strcmp(user->username, username) == 0 && strcmp(user->password, password) == 0)
+		{
+			if (user->role == 0)
+			{
+				return 'A'; // Admin
+			}
+			else if (user->role == 1)
+			{
+				return 'C'; // Customer
+			}
+		}
+		user = user->next;
+	}
+
+	return 0;
+}
+
+void save_users(User *users)
+{
+	if (users == NULL)
+	{
+		printf("No Users To save\n");
+		return;
+	}
+
+	FILE *user_file = fopen("user_credential.xls", "w");
+	if (user_file == NULL)
+	{
+		printf("Error opening file for writing\n");
+		return;
+	}
+	fprintf(user_file, "User  name\tpassword\tUser  Role\n");
+
+	User *current = users;
+	char role[15];
+	while (current != NULL)
+	{
+		if (current->role == 0)
+		{
+			strcpy(role, "ADMIN");
+		}
+		else if (current->role == 1)
+		{
+			strcpy(role, "CUSTOMER");
+		}
+		printf("Saving user: %s with role: %s\n", current->username, role);
+		usleep(500000);
+
+		fprintf(user_file, "%s\t%s\t%s\n", current->username, current->password, role);
+		current = current->next;
+	}
+	fclose(user_file);
+	printf("User  details saved to user_credential.xls successfully.\n");
+}
+
+void read_user(User **user)
+{
+
 	FILE *user_file = fopen("user_credential.xls", "r");
 	if (user_file == NULL)
 	{
@@ -162,47 +228,46 @@ char check_user(User *user, char *username, char *password)
 
 		user_role[strcspn(user_role, "\n")] = 0;
 
-		if (strcmp(file_username, username) == 0 && strcmp(file_password, password) == 0)
+		User *new_user = (User *)malloc(sizeof(User));
+		if (new_user == NULL)
 		{
-			return (strcmp(user_role, "ADMIN") == 0) ? 'A' : 'C';
+			printf("Memory allocation failed!\n");
+			fclose(user_file);
+			return;
 		}
+		strcpy(new_user->username, file_username);
+		strcpy(new_user->password, file_password);
+		if (strcmp(user_role, "ADMIN") == 0)
+		{
+			new_user->role = ADMIN;
+		}
+		else if (strcmp(user_role, "CUSTOMER") == 0)
+		{
+			new_user->role = CUSTOMER;
+		}
+		else
+		{
+			printf("Invalid user role in file: %s\n", user_role);
+			free(new_user);
+			continue;
+		}
+
+		if (*user == NULL)
+		{
+			*user = new_user;
+		}
+		else
+		{
+			User *current = *user;
+			while (current->next != NULL)
+				current = current->next;
+
+			new_user->next = current->next;
+			current->next = new_user;
+		}
+
+		printf("User %s with role %s loaded successfully.\n", new_user->username, user_role);
+		usleep(500000);
 	}
 	fclose(user_file);
-	return 0;
-}
-
-void save_users(User *users)
-{
-	if (users == NULL)
-	{
-		printf("No Users To save\n");
-		return;
-	}
-
-	FILE *user_file = fopen("user_credential.xls", "w"); // Corrected to "w"
-	if (user_file == NULL)
-	{
-		printf("Error opening file for writing\n");
-		return;
-	}
-	fprintf(user_file, "User  name\tpassword\tUser  Role\n");
-
-	User *current = users;
-	char role[15];
-	while (current != NULL)
-	{
-		if (current->role == 0)
-		{
-			strcpy(role, "ADMIN");
-		}
-		else if (current->role == 0)
-		{
-			strcpy(role, "CUSTOMER");
-		}
-
-		fprintf(user_file, "%s\t%s\t%s\n", current->username, current->password, role);
-		current = current->next;
-	}
-	fclose(user_file);
-	printf("User  details saved to user_credential.xls successfully.\n");
 }
